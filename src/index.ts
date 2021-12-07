@@ -1,15 +1,18 @@
+require("dotenv").config();
 import express from "express";
 import Logger from "./logger";
+import router from "./secure/secure.routes";
 
 const app = express();
-const port = 8080; // default port to listen
 
-// define a route handler for the default home page
-app.get("/", (req, res) => {
-  res.send("Hello world!");
-});
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/", router);
 
 // start the Express server
-app.listen(port, () => {
-  Logger.debug(`Server is up and running @ http://localhost:${port}`);
+export const server = app.listen(process.env.PORT, () => {
+  Logger.info(
+    `Server is up and running @ http://localhost:${process.env.PORT}`
+  );
 });
