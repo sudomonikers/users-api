@@ -1,4 +1,6 @@
 import * as AWS from "aws-sdk";
+import bcrypt from "bcrypt";
+import moment from "moment";
 import Logger from "../logger";
 
 AWS.config.update({
@@ -18,13 +20,41 @@ export const getToDos = async () => {
   return await dynamoClient.scan(params).promise();
 };
 
-// PUT
-export const putToDos = async (toDo: any) => {
+export const getToDosForUser = async (user: string) => {
   const params = {
     TableName: TABLE_NAME,
-    Item: toDo,
+    Key: {
+      user,
+    },
   };
-  return await dynamoClient.put(params).promise();
+  return await dynamoClient.scan(params).promise();
+};
+
+// PUT
+export const putToDos = async (user: string, toDo: any) => {
+  let id = await bcrypt.hash(toDo.note, 3);
+  id = id.replace(/\W/g, `${Math.floor(Math.random() * 1000)}`);
+  const params = {
+    TableName: TABLE_NAME,
+    Item: {
+      id,
+      user,
+      toDo,
+      date: moment().format(),
+    },
+  };
+  await dynamoClient.put(params).promise();
+  return params.Item;
 };
 
 // DELETE
+export const delToDo = async (user: string, id: string) => {
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      id,
+      user,
+    },
+  };
+  return await dynamoClient.delete(params).promise();
+};

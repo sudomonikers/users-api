@@ -14,19 +14,24 @@ router.get("/", (req, res) => {
 
 router.get("/toDos", async (req, res) => {
   const toDos = await routeFunctions.getToDos();
-  Logger.debug(toDos);
+  res.json(toDos);
+});
+
+router.get("/toDos/:user", async (req, res) => {
+  const toDos = await routeFunctions.getToDosForUser(req.params.user);
   res.json(toDos);
 });
 
 // Put
-router.put("/toDos", async (req, res) => {
-  Logger.debug(req.body);
-
-  const response = await routeFunctions.putToDos(req.body.toDo);
-  Logger.debug(response);
+router.put("/toDos/:user", async (req, res) => {
+  const response = await routeFunctions.putToDos(req.params.user, req.body);
   res.json(response);
 });
 
 // Delete
+router.delete("/toDos/:user/:id", async (req, res) => {
+  const response = await routeFunctions.delToDo(req.params.user, req.params.id);
+  res.json(response);
+});
 
 export default router;
